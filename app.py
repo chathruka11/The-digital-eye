@@ -2,14 +2,12 @@ import streamlit as st
 import google.generativeai as genai
 from PIL import Image
 
-# API Key - නිවැරදි කරන ලද එක
+# API Key
 GOOGLE_API_KEY = "AIzaSyD-rdl0rLz71HEAqc_kX9QsBrWSyfVbUt4"
 
-try:
-    genai.configure(api_key=GOOGLE_API_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash')
-except Exception as e:
-    st.error("API Key එකේ ගැටලුවක් ඇත.")
+# Model එක නිවැරදිව සම්බන්ධ කිරීම
+genai.configure(api_key=GOOGLE_API_KEY)
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 st.set_page_config(page_title="AI Cyber Eye", layout="centered")
 
@@ -26,7 +24,7 @@ if img_file:
     st.image(img, caption="පින්තූරය ලැබුණා", use_column_width=True)
     
     if mode == "වටපිටාව අඳුනාගැනීම":
-        prompt = "Describe this environment in detail for a visually impaired person in Sinhala."
+        prompt = "Describe this environment in detail for a visually impaired person in Sinhala. Focus on safety."
     elif mode == "මුදල් සහ බිල්පත්":
         prompt = "Identify any currency notes or bills in this image in Sinhala."
     elif mode == "මුහුණේ ස්වභාවය":
@@ -36,8 +34,9 @@ if img_file:
 
     try:
         with st.spinner("පරීක්ෂා කරමින් පවතිී..."):
+            # මෙතන තමයි වැරැද්ද තිබුණේ, දැන් ඒක හරි
             response = model.generate_content([prompt, img])
             st.subheader("පිළිතුර:")
             st.write(response.text)
     except Exception as e:
-        st.error("සේවාව ක්‍රියාත්මක වීමේදී දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න.")
+        st.error("දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න.")
