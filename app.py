@@ -5,10 +5,11 @@ from PIL import Image
 # API Key
 GOOGLE_API_KEY = "AIzaSyD-rdl0rLz71HEAqc_kX9QsBrWSyfVbUt4"
 
-# Gemini සම්බන්ධ කිරීම
+# Gemini සම්බන්ධ කිරීම (නව මොඩල් නාමය සහිතව)
 try:
     genai.configure(api_key=GOOGLE_API_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    # මෙතන නම 'models/gemini-1.5-flash-latest' ලෙස වෙනස් කළා
+    model = genai.GenerativeModel('gemini-1.5-flash-latest')
 except Exception as e:
     st.error(f"සම්බන්ධතාවයේ දෝෂයක්: {e}")
 
@@ -26,22 +27,19 @@ if img_file:
     img = Image.open(img_file)
     st.image(img, caption="පින්තූරය ලැබුණා", use_column_width=True)
     
-    # පින්තූරය විග්‍රහ කරන උපදෙස්
     if mode == "වටපිටාව අඳුනාගැනීම":
-        prompt = "Describe this environment in detail for a visually impaired person in Sinhala. Speak naturally."
+        prompt = "Describe this environment in detail for a visually impaired person in Sinhala."
     elif mode == "මුදල් සහ බිල්පත්":
-        prompt = "Identify any currency notes or bills in this image and tell the amount in Sinhala."
+        prompt = "Identify any currency notes or bills in this image in Sinhala."
     elif mode == "මුහුණේ ස්වභාවය":
-        prompt = "Describe the person's mood, expression and estimated age in Sinhala."
+        prompt = "Describe the person's mood and expression in Sinhala."
     else:
-        prompt = "Read the text in this image clearly and summarize it in Sinhala."
+        prompt = "Read the text in this image and summarize in Sinhala."
 
     try:
         with st.spinner("පරීක්ෂා කරමින් පවතිී..."):
-            # පින්තූරය Gemini වෙත යැවීම
             response = model.generate_content([prompt, img])
             st.subheader("පිළිතුර:")
             st.write(response.text)
     except Exception as e:
-        # මෙතනින් තමයි ඇත්තම දෝෂය පෙන්වන්නේ
         st.error(f"ඇත්තම දෝෂය (Error): {e}")
