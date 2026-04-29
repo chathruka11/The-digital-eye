@@ -7,19 +7,23 @@ GOOGLE_API_KEY = "AIzaSyD-rdl0rLz71HEAqc_kX9QsBrWSyfVbUt4"
 
 st.set_page_config(page_title="AI Cyber Eye", layout="centered")
 
-# Gemini සම්බන්ධ කිරීම
+# Gemini සම්බන්ධ කිරීම සහ මොඩලය ස්වයංක්‍රීයව තෝරාගැනීම
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# මොඩල් එක තෝරාගැනීම (Error එක මඟ හැරීමට උත්සාහයන් දෙකක්)
+@st.cache_resource
+def get_working_model():
+    # තියෙන මොඩල් ලිස්ට් එකෙන් එකක් තෝරාගැනීම
+    for m in genai.list_models():
+        if 'generateContent' in m.supported_generation_methods:
+            if 'gemini-1.5-flash' in m.name or 'gemini-pro-vision' in m.name:
+                return genai.GenerativeModel(m.name)
+    # කිසිවක් නැත්නම් default එකක් දීම
+    return genai.GenerativeModel('gemini-1.5-flash')
+
 try:
-    # පළමු උත්සාහය
-    model = genai.GenerativeModel('gemini-pro-vision')
-except:
-    try:
-        # දෙවන උත්සාහය (Flash මොඩලය)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-    except Exception as e:
-        st.error(f"මොඩලය සම්බන්ධ කරගැනීමේ දෝෂය: {e}")
+    model = get_working_model()
+except Exception as e:
+    st.error(f"සම්බන්ධතාවයේ ගැටලුවක්: {e}")
 
 st.title("👁️ AI සයිබර් ඇස")
 st.write("පින්තූරයක් ලබා දී විස්තර ලබාගන්න.")
@@ -44,9 +48,8 @@ if img_file:
 
     try:
         with st.spinner("පරීක්ෂා කරමින් පවතිී..."):
-            # පින්තූරය පරීක්ෂා කිරීම
             response = model.generate_content([prompt, img])
             st.subheader("පිළිතුර:")
             st.write(response.text)
     except Exception as e:
-        st.error(f"Error details: {e}")
+        st.error(f"අලුත්ම දෝෂය: {e}")
